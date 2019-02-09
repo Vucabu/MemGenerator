@@ -16,16 +16,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import android.graphics.Bitmap
-import android.view.MotionEvent
-import android.view.View
+import android.provider.MediaStore
+import android.widget.Toast
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    private var startX: Float = 0.0f
-    private var startY: Float = 0.0f
-    private var amountX: Float = 0.0f
-    private var amountY: Float = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,22 +41,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         val bm = BitmapFactory.decodeResource(resources, R.drawable.template_1)
-        val config = bm.config
-        val width = bm.width
-        val height = bm.height
-
-        val newImage = Bitmap.createBitmap(width, height, config)
-
+        val newImage = Bitmap.createBitmap(bm.width, bm.height, bm.config)
+        fab.setOnClickListener {
+            workspace_image.buildDrawingCache()
+            val bitmap = workspace_image.drawingCache
+            MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Meme1", "Kuku")
+            Toast.makeText(applicationContext, "Saved to camera roll", Toast.LENGTH_SHORT).show()
+        }
         val c = Canvas(newImage)
         c.drawBitmap(bm, 0f, 0f, null)
+        c.drawText("My application STATIC label    333", 50F, 75f, labelPaint())
+        workspace_image.setImageBitmap(newImage)
+    }
 
+    private fun labelPaint(): Paint {
         val mTextPaint = Paint()
         mTextPaint.color = Color.RED
         mTextPaint.style = Paint.Style.FILL
         mTextPaint.textSize = 50f
 
-        c.drawText("My application STATIC label", 50F, 75f, mTextPaint)
-        workspace_image.setImageBitmap(newImage)
+        return mTextPaint;
     }
 
     override fun onBackPressed() {
